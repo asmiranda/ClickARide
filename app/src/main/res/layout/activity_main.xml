@@ -25,19 +25,6 @@
             android:id="@+id/mapFragment" />
     </FrameLayout>
 
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:text="From:"
-        android:ems="8"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/txtFrom"
-        android:editable="false"
-        android:textStyle="normal|italic"
-        android:textSize="14sp" />
-
     <fragment
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

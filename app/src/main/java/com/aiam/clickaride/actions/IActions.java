@@ -14,7 +14,7 @@ import com.google.android.gms.maps.model.LatLng;
 public interface IActions {
 //    Step1
     LatLng markOrigin(GoogleMap googleMap);
-    LatLng markDestination(GoogleMap googleMap);
+    void markDestination(GoogleMap googleMap, LatLng latLng);
     void drawRoute(LatLng from, LatLng to, GoogleMap googleMap);
 
 //    Step2

@@ -18,19 +18,17 @@ public class PassengerActions implements IActions {
     @Override
     public LatLng markOrigin(GoogleMap googleMap) {
 //        googleMap.animateCamera(CameraUpdateFactory.zoomIn());
-        LatLng current = Util.getCurrentLocation(googleMap);
-        googleMap.addMarker(new MarkerOptions().position(current).title("Me"));
-        return current;
+        LatLng origin = Util.getCurrentLocation(googleMap);
+        googleMap.addMarker(new MarkerOptions().position(origin).title("Me"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(origin, 10));
+        return origin;
     }
 
     @Override
-    public LatLng markDestination(GoogleMap googleMap) {
+    public void markDestination(GoogleMap googleMap, LatLng dest) {
 //        note: the current value must be coming from the search field
-        LatLng current = Util.getToLocation(googleMap);
         MarkerOptions options = new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-        googleMap.addMarker(options.position(current).title("To"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(current, 10));
-        return current;
+        googleMap.addMarker(options.position(dest).title("To"));
     }
 
     @Override

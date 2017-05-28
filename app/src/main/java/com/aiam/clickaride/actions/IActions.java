@@ -21,9 +21,7 @@ public interface IActions {
     void alert(String message);
 
 //    Step3
-    void accept();
-    void acceptedBy(Driver driver);
-    void acceptedBy(Passenger driver);
+    void requestRide();
 
 //    Step4
     void cancel(String message);

@@ -52,6 +52,13 @@
                 android:layout_height="match_parent">
 
                 <Button
+                    android:text="Login"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/btnLogin"
+                    android:layout_weight="1" />
+
+                <Button
                     android:text="Ride"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

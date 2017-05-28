@@ -1,7 +1,16 @@
 package com.aiam.clickaride.util;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -11,14 +20,41 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.google.android.gms.location.LocationServices.FusedLocationApi;
 
 /**
  * Created by aiam on 5/15/2017.
  */
 
 public class Util {
-    public static LatLng getCurrentLocation(GoogleMap googleMap) {
-        return new LatLng(14.618449, 120.971766);
+    public static LatLng getCurrentLocation(Context context, GoogleApiClient mGoogleApiClient) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return null;
+        }
+        Location mLastLocation = FusedLocationApi.getLastLocation(mGoogleApiClient);
+        return new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+    }
+
+    public static String getCurrentAddress(Context context, GoogleApiClient mGoogleApiClient) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return null;
+        }
+        String address = "";
+        Location mLastLocation = FusedLocationApi.getLastLocation(mGoogleApiClient);
+        Geocoder gCoder = new Geocoder(context);
+        try {
+            List<Address> addresses = gCoder.getFromLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude(), 1);
+            if (addresses != null && addresses.size() > 0) {
+                address = addresses.get(0).getSubThoroughfare();
+                Toast.makeText(context, "country: " + addresses.get(0).getCountryName(), Toast.LENGTH_LONG).show();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return address;
     }
 
     public static LatLng getToLocation(GoogleMap googleMap) {

@@ -2,7 +2,11 @@ package com.aiam.clickaride;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -10,7 +14,9 @@ import android.view.View;
 import android.widget.Button;
 
 import com.aiam.clickaride.actions.PassengerActions;
+import com.aiam.clickaride.service.AppLocationService;
 import com.aiam.clickaride.util.Constants;
+import com.aiam.clickaride.util.LocationAddress;
 import com.aiam.clickaride.util.Util;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
@@ -39,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     String origin;
 
     MainActivity context;
+    AppLocationService appLocationService;
+    Location currentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +79,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onPlaceSelected(Place place) {
                 mMap.clear();
+
+                Location location = appLocationService.getLocation(LocationManager.GPS_PROVIDER);
+                if (location != null) {
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    LocationAddress locationAddress = new LocationAddress();
+                    locationAddress.getAddressFromLocation(latitude, longitude, getApplicationContext(), new GeocoderHandler());
+//                } else {
+//                    showSettingsAlert();
+                }
+
                 LatLng from = action.markOrigin(mMap, context, mGoogleApiClient);
                 destination = place.getAddress().toString();
                 LatLng dest = place.getLatLng();
@@ -96,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             btnRide.setVisibility(View.GONE);
             btnCancel.setVisibility(View.GONE);
         }
+        appLocationService = new AppLocationService(MainActivity.this);
     }
 
     @Override
@@ -154,5 +174,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onConnectionSuspended(int i) {
 
+    }
+    private class GeocoderHandler extends Handler {
+        @Override
+        public void handleMessage(Message message) {
+            String locationAddress;
+            switch (message.what) {
+                case 1:
+                    Bundle bundle = message.getData();
+                    locationAddress = bundle.getString("address");
+                    break;
+                default:
+                    locationAddress = null;
+            }
+//            tvAddress.setText(locationAddress);
+        }
     }
 }

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.AsyncTask;
 
 import com.aiam.clickaride.LoginActivity;
@@ -29,11 +30,10 @@ import org.springframework.web.client.RestTemplate;
  */
 
 public class PassengerActions {
-    public LatLng markOrigin(GoogleMap googleMap, Context context, GoogleApiClient mGoogleApiClient) {
-        LatLng origin = Util.getCurrentLocation(context, mGoogleApiClient);
+    public void markOrigin(GoogleMap googleMap, Location currentLocation) {
+        LatLng origin = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
         googleMap.addMarker(new MarkerOptions().position(origin).title("Me"));
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(origin, 10));
-        return origin;
     }
 
     public void markDestination(GoogleMap googleMap, LatLng dest) {

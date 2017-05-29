@@ -90,7 +90,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 //                    showSettingsAlert();
                 }
 
-                LatLng from = action.markOrigin(mMap, context, mGoogleApiClient);
+                currentLocation = appLocationService.getLocation(LocationManager.GPS_PROVIDER);
+                action.markOrigin(mMap, currentLocation);
+                LatLng from = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
                 destination = place.getAddress().toString();
                 LatLng dest = place.getLatLng();
 
@@ -121,7 +123,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        action.markOrigin(googleMap, context, mGoogleApiClient);
+        currentLocation = appLocationService.getLocation(LocationManager.GPS_PROVIDER);
+        action.markOrigin(googleMap, currentLocation);
     }
 
     @Override
@@ -153,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (v == btnRide) {
             System.out.println("BTN RIDE");
 //            LatLng orig = Util.getCurrentLocation(this, mGoogleApiClient);
-            action.requestRide(username, Util.getCurrentAddress(this, mGoogleApiClient), destination);
+            action.requestRide(username, "Home", destination);
         }
         else if (v == btnLogin){
             System.out.println("BTN LOGIN");

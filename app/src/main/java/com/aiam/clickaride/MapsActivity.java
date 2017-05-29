@@ -1,79 +1,72 @@
 package com.aiam.clickaride;
 
-import android.support.v4.app.FragmentActivity;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.provider.Settings;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.aiam.clickaride.service.AppLocationService;
+import com.aiam.clickaride.util.LocationAddress;
 
-import java.util.ArrayList;
+public class MapsActivity extends Activity {
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+    Button btnGPSShowLocation;
+    Button btnShowAddress;
+    TextView tvAddress;
 
-    private GoogleMap mMap;
-    ArrayList markerPoints= new ArrayList();
+    AppLocationService appLocationService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-    }
+        tvAddress = (TextView) findViewById(R.id.tvAddress);
+        appLocationService = new AppLocationService(MapsActivity.this);
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        LatLng sydney = new LatLng(-34, 151);
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 16));
-
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        btnGPSShowLocation = (Button) findViewById(R.id.btnGPSShowLocation);
+        btnGPSShowLocation.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onMapClick(LatLng latLng) {
-
-                if (markerPoints.size() > 1) {
-                    markerPoints.clear();
-                    mMap.clear();
+            public void onClick(View arg0) {
+                Location gpsLocation = appLocationService.getLocation(LocationManager.GPS_PROVIDER);
+                if (gpsLocation != null) {
+                    double latitude = gpsLocation.getLatitude();
+                    double longitude = gpsLocation.getLongitude();
+                    String result = "Latitude: " + gpsLocation.getLatitude() + " Longitude: " + gpsLocation.getLongitude();
+                    tvAddress.setText(result);
+                } else {
+                    showSettingsAlert();
                 }
+            }
+        });
 
-                // Adding new item to the ArrayList
-                markerPoints.add(latLng);
+        btnShowAddress = (Button) findViewById(R.id.btnShowAddress);
+        btnShowAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
 
-                // Creating MarkerOptions
-                MarkerOptions options = new MarkerOptions();
+                Location location = appLocationService.getLocation(LocationManager.GPS_PROVIDER);
 
-                // Setting the position of the marker
-                options.position(latLng);
+                //you can hard-code the lat & long if you have issues with getting it
+                //remove the below if-condition and use the following couple of lines
+                //double latitude = 37.422005;
+                //double longitude = -122.084095
 
-                if (markerPoints.size() == 1) {
-                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                } else if (markerPoints.size() == 2) {
-                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                }
-
-                // Add new marker to the Google Map Android API V2
-                mMap.addMarker(options);
-
-                // Checks, whether start and end locations are captured
-                if (markerPoints.size() >= 2) {
-                    LatLng origin = (LatLng) markerPoints.get(0);
-                    LatLng dest = (LatLng) markerPoints.get(1);
-
-                    // Getting URL to the Google Directions API
-//                    String url = getDirectionsUrl(origin, dest);
-
-//                    DrawDirectionTask downloadTask = new DrawDirectionTask();
-
-                    // Start downloading json data from Google Directions API
-//                    downloadTask.execute(url);
+                if (location != null) {
+                    double latitude = location.getLatitude();
+                    double longitude = location.getLongitude();
+                    LocationAddress locationAddress = new LocationAddress();
+                    locationAddress.getAddressFromLocation(latitude, longitude, getApplicationContext(), new GeocoderHandler());
+                } else {
+                    showSettingsAlert();
                 }
 
             }
@@ -81,5 +74,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    public void showSettingsAlert() {
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MapsActivity.this);
+        alertDialog.setTitle("SETTINGS");
+        alertDialog.setMessage("Enable Location Provider! Go to settings menu?");
+        alertDialog.setPositiveButton("Settings",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        MapsActivity.this.startActivity(intent);
+                    }
+                });
+        alertDialog.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        alertDialog.show();
+    }
 
+    private class GeocoderHandler extends Handler {
+        @Override
+        public void handleMessage(Message message) {
+            String locationAddress;
+            switch (message.what) {
+                case 1:
+                    Bundle bundle = message.getData();
+                    locationAddress = bundle.getString("address");
+                    break;
+                default:
+                    locationAddress = null;
+            }
+            tvAddress.setText(locationAddress);
+        }
+    }
 }

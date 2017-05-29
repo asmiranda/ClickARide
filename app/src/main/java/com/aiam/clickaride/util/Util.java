@@ -30,37 +30,6 @@ import static com.google.android.gms.location.LocationServices.FusedLocationApi;
  */
 
 public class Util {
-    public static LatLng getCurrentLocation(Context context, GoogleApiClient mGoogleApiClient) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return null;
-        }
-        Location mLastLocation = FusedLocationApi.getLastLocation(mGoogleApiClient);
-        return new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-    }
-
-    public static String getCurrentAddress(Context context, GoogleApiClient mGoogleApiClient) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return null;
-        }
-        String address = "";
-        Location mLastLocation = FusedLocationApi.getLastLocation(mGoogleApiClient);
-        Geocoder gCoder = new Geocoder(context);
-        try {
-            List<Address> addresses = gCoder.getFromLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude(), 1);
-            if (addresses != null && addresses.size() > 0) {
-                address = addresses.get(0).getSubThoroughfare();
-                Toast.makeText(context, "country: " + addresses.get(0).getCountryName(), Toast.LENGTH_LONG).show();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return address;
-    }
-
-    public static LatLng getToLocation(GoogleMap googleMap) {
-        return new LatLng(14.587373, 121.063549);
-    }
-
     public static String downloadUrl(Object strUrl) throws IOException {
         String data = "";
         InputStream iStream = null;

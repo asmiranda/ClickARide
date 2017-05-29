@@ -42,10 +42,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     SharedPreferences sharedpreferences;
     String username;
     String destination;
-    String origin;
 
     MainActivity context;
     AppLocationService appLocationService;
+    String origin;
     Location currentLocation;
 
     @Override
@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (v == btnRide) {
             System.out.println("BTN RIDE");
 //            LatLng orig = Util.getCurrentLocation(this, mGoogleApiClient);
-            action.requestRide(username, "Home", destination);
+            action.requestRide(username, origin, destination);
         }
         else if (v == btnLogin){
             System.out.println("BTN LOGIN");
@@ -181,14 +181,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private class GeocoderHandler extends Handler {
         @Override
         public void handleMessage(Message message) {
-            String locationAddress;
             switch (message.what) {
                 case 1:
                     Bundle bundle = message.getData();
-                    locationAddress = bundle.getString("address");
+                    origin = bundle.getString("address");
                     break;
                 default:
-                    locationAddress = null;
+                    origin = null;
             }
 //            tvAddress.setText(locationAddress);
         }

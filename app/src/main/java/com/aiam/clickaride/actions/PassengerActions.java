@@ -84,7 +84,7 @@ public class PassengerActions {
             public void run() {
                 try {
                     RequestRiderDTO request = new RequestRiderDTO();
-                    request.setAcceptedBy(username);
+                    request.setRequestor(username);
                     request.setRequestLocationOrigin(origin);
                     request.setRequestLocationDestination(destination);
 

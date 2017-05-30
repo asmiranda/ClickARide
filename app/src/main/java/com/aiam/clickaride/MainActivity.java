@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.aiam.clickaride.actions.PassengerActions;
 import com.aiam.clickaride.service.AppLocationService;
@@ -47,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     AppLocationService appLocationService;
     String origin;
     Location currentLocation;
+    TextView lblStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnRide = (Button) findViewById(R.id.btnRide);
         btnCancel = (Button) findViewById(R.id.btnCancel);
         btnLogin = (Button) findViewById(R.id.btnLogin);
+        lblStatus = (TextView) findViewById(R.id.lblStatus);
 
         btnRide.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
@@ -118,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             btnCancel.setVisibility(View.GONE);
         }
         appLocationService = new AppLocationService(MainActivity.this);
+        action.displayLastStatus(username, lblStatus);
     }
 
     @Override
@@ -155,8 +159,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onClick(View v) {
         if (v == btnRide) {
             System.out.println("BTN RIDE");
-//            LatLng orig = Util.getCurrentLocation(this, mGoogleApiClient);
-            action.requestRide(username, origin, destination);
+            action.requestRide(username, origin, destination, lblStatus);
         }
         else if (v == btnLogin){
             System.out.println("BTN LOGIN");

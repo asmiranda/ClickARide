@@ -67,18 +67,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         btnCancel = (Button) findViewById(R.id.btnCancel);
         btnLogin = (Button) findViewById(R.id.btnLogin);
+        btnRide = (Button) findViewById(R.id.btnRide);
+        btnAccept = (Button) findViewById(R.id.btnAccept);
+        btnComplete = (Button) findViewById(R.id.btnComplete);
+
+        if (btnCancel != null) btnCancel.setOnClickListener(this);
+        if (btnLogin != null) btnLogin.setOnClickListener(this);
+        if (btnRide != null) btnRide.setOnClickListener(this);
+        if (btnAccept != null) btnAccept.setOnClickListener(this);
+        if (btnComplete != null) btnComplete.setOnClickListener(this);
+
         lblStatus = (TextView) findViewById(R.id.lblStatus);
 
-        btnCancel.setOnClickListener(this);
-        btnLogin.setOnClickListener(this);
-
-        btnRide = (Button) findViewById(R.id.btnRide);
-        btnRide.setOnClickListener(this);
-
-        btnAccept = (Button) findViewById(R.id.btnAccept);
-        btnAccept.setOnClickListener(this);
-        btnComplete = (Button) findViewById(R.id.btnComplete);
-        btnComplete.setOnClickListener(this);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);

@@ -14,11 +14,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.aiam.clickaride.actions.PassengerActions;
+import com.aiam.clickaride.actions.ClickARideActions;
 import com.aiam.clickaride.service.AppLocationService;
 import com.aiam.clickaride.util.Constants;
 import com.aiam.clickaride.util.LocationAddress;
-import com.aiam.clickaride.util.Util;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
@@ -34,10 +33,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static String TAG = "MainActivity";
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mMap;
-    PassengerActions action = new PassengerActions();
+    ClickARideActions action = new ClickARideActions();
     SupportMapFragment mapFragment;
     Button btnRide;
+    Button btnAccept;
     Button btnCancel;
+    Button btnComplete;
     Button btnLogin;
 
     SharedPreferences sharedpreferences;
@@ -62,16 +63,22 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .build();
         }
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_driver);
 
-        btnRide = (Button) findViewById(R.id.btnRide);
         btnCancel = (Button) findViewById(R.id.btnCancel);
         btnLogin = (Button) findViewById(R.id.btnLogin);
         lblStatus = (TextView) findViewById(R.id.lblStatus);
 
-        btnRide.setOnClickListener(this);
         btnCancel.setOnClickListener(this);
         btnLogin.setOnClickListener(this);
+
+        btnRide = (Button) findViewById(R.id.btnRide);
+        btnRide.setOnClickListener(this);
+
+        btnAccept = (Button) findViewById(R.id.btnAccept);
+        btnAccept.setOnClickListener(this);
+        btnComplete = (Button) findViewById(R.id.btnComplete);
+        btnComplete.setOnClickListener(this);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
@@ -165,10 +172,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             System.out.println("BTN LOGIN");
             action.login(this);
         }
+        else if (v == btnAccept){
+            System.out.println("BTN ACCEPT");
+            String passenger = null;//this must comes from popup screen, poll only
+            action.accept(passenger, username, lblStatus);
+        }
+        else if (v == btnComplete){
+            System.out.println("BTN COMPLETE");
+            action.complete(username, lblStatus);
+        }
         else {
 //            this should ask passenger why cancelled
             System.out.println("BTN CANCEL");
-            action.cancel("Cancelled Ride");
+            action.cancel("Cancelled Ride", lblStatus);
         }
     }
 

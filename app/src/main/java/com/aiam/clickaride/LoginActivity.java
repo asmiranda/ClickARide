@@ -31,7 +31,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.aiam.clickaride.actions.PassengerActions;
+import com.aiam.clickaride.actions.ClickARideActions;
 import com.aiam.clickaride.util.Constants;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ import static android.Manifest.permission.READ_CONTACTS;
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
     SharedPreferences sharedpreferences;
-    PassengerActions action = new PassengerActions();
+    ClickARideActions action = new ClickARideActions();
 
     /**
      * Id to identity READ_CONTACTS permission request.

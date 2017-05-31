@@ -1,7 +1,6 @@
 package com.aiam.clickaride.actions;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -15,8 +14,6 @@ import com.aiam.clickaride.dto.Passenger;
 import com.aiam.clickaride.dto.RequestRiderDTO;
 import com.aiam.clickaride.util.Constants;
 import com.aiam.clickaride.util.DrawDirectionTask;
-import com.aiam.clickaride.util.Util;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -31,7 +28,7 @@ import org.springframework.web.client.RestTemplate;
  * Created by aiam on 5/12/2017.
  */
 
-public class PassengerActions {
+public class ClickARideActions {
     public void markOrigin(GoogleMap googleMap, Location currentLocation) {
         if (currentLocation != null) {
             LatLng origin = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
@@ -106,7 +103,7 @@ public class PassengerActions {
         });
     }
 
-    public void cancel(String message) {
+    public void cancel(final String message, final TextView lblStatus) {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -122,6 +119,7 @@ public class PassengerActions {
                     restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                     String message = restTemplate.postForObject(url, pass, String.class);
                     System.out.println(message);
+                    lblStatus.setText("Ride Cancelled");
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -150,6 +148,50 @@ public class PassengerActions {
                     LastStatusDTO p = (LastStatusDTO) message.getBody();
                     System.out.println(p.getStatus());
                     lblStatus.setText("Ride "+p.getStatus());
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void complete(final String driver, final TextView lblStatus) {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    RequestRiderDTO request = new RequestRiderDTO();
+                    request.setAcceptedBy(driver);
+
+                    final String url = "http://10.0.2.2:8080/completeAcceptRide";
+                    RestTemplate restTemplate = new RestTemplate();
+                    restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                    ResponseEntity message = restTemplate.postForEntity(url, request, RequestRiderDTO.class);
+                    lblStatus.setText("Ride Completed");
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void accept(final String passenger, final String driver, final TextView lblStatus) {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    RequestRiderDTO request = new RequestRiderDTO();
+                    request.setRequestor(passenger);
+                    request.setAcceptedBy(driver);
+
+                    final String url = "http://10.0.2.2:8080/acceptRide";
+                    RestTemplate restTemplate = new RestTemplate();
+                    restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                    ResponseEntity message = restTemplate.postForEntity(url, request, RequestRiderDTO.class);
+                    RequestRiderDTO p = (RequestRiderDTO) message.getBody();
+                    lblStatus.setText("Ride Accepted");
                 }
                 catch (Exception e) {
                     e.printStackTrace();

@@ -29,6 +29,14 @@ android {
         exclude 'META-INF/license'
         exclude 'META-INF/license.txt'
     }
+    productFlavors {
+        driver {
+            applicationId "com.aiam.clickaride.driver"
+        }
+        passenge {
+            applicationId "com.aiam.clickaride.passenger"
+        }
+    }
 }
 
 dependencies {

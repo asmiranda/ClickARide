@@ -1,15 +1,19 @@
 package com.aiam.clickaride.util;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.aiam.clickaride.actions.ClickARideActions;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -30,6 +34,8 @@ import static com.google.android.gms.location.LocationServices.FusedLocationApi;
  */
 
 public class Util {
+    static ClickARideActions actions = new ClickARideActions();
+
     public static String downloadUrl(Object strUrl) throws IOException {
         String data = "";
         InputStream iStream = null;
@@ -74,5 +80,23 @@ public class Util {
         // Building the url to the web service
         String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
         return url;
+    }
+
+    public static void runDriverPolling(final Activity activity, final TextView lblStatus, final String username) {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                boolean b = true;
+                while(b) {
+                    try {
+                        Thread.sleep(1000 * 60);
+                        actions.alertForNewRequest(activity, lblStatus, username);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        t.start();
     }
 }

@@ -16,8 +16,10 @@ import android.widget.TextView;
 
 import com.aiam.clickaride.actions.ClickARideActions;
 import com.aiam.clickaride.service.AppLocationService;
+import com.aiam.clickaride.util.ClickARideType;
 import com.aiam.clickaride.util.Constants;
 import com.aiam.clickaride.util.LocationAddress;
+import com.aiam.clickaride.util.Util;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
@@ -124,11 +126,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             btnLogin.setVisibility(View.GONE);
         }
         else {
-            btnRide.setVisibility(View.GONE);
-            btnCancel.setVisibility(View.GONE);
+            if (btnRide != null) btnRide.setVisibility(View.GONE);
+            if (btnCancel != null) btnCancel.setVisibility(View.GONE);
         }
         appLocationService = new AppLocationService(MainActivity.this);
         action.displayLastStatus(username, lblStatus);
+
+        if (ClickARideType.isDriver()) {
+            Util.runDriverPolling(this, lblStatus, username);
+        }
     }
 
     @Override

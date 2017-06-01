@@ -1,14 +1,20 @@
 package com.aiam.clickaride.actions;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.widget.TextView;
 
 import com.aiam.clickaride.LoginActivity;
 import com.aiam.clickaride.MainActivity;
+import com.aiam.clickaride.dto.Driver;
 import com.aiam.clickaride.dto.LastStatusDTO;
 import com.aiam.clickaride.dto.Passenger;
 import com.aiam.clickaride.dto.RequestRiderDTO;
@@ -198,5 +204,59 @@ public class ClickARideActions {
                 }
             }
         });
+    }
+
+    public void alertForNewRequest(final Activity activity, final TextView lblStatus, final String driver) {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Driver pass = new Driver();
+                    pass.setUserName(driver);
+
+                    final String url = "http://10.0.2.2:8080/checkNewRequest";
+                    RestTemplate restTemplate = new RestTemplate();
+                    restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                    ResponseEntity message = restTemplate.postForEntity(url, pass, RequestRiderDTO.class);
+                    final RequestRiderDTO p = (RequestRiderDTO) message.getBody();
+                    if (p.getRequestor() != null) {
+                        activity.runOnUiThread(new AcceptRunnable(activity, lblStatus, p));
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    class AcceptRunnable implements Runnable, DialogInterface.OnClickListener {
+        Activity activity;
+        RequestRiderDTO p;
+        TextView lblStatus;
+
+        AcceptRunnable(Activity activity, TextView lblStatus, RequestRiderDTO p) {
+            this.activity = activity;
+            this.lblStatus = lblStatus;
+            this.p = p;
+        }
+
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            if (which == 1) {
+                System.out.println();
+                accept(p.getRequestor(), p.getAcceptedBy(), lblStatus);
+            }
+        }
+
+        @Override
+        public void run() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle("New Ride Request");
+            builder.setMessage("New Ride Request from "+p.getRequestLocationOrigin()+" to "+p.getRequestLocationDestination());
+            builder.setPositiveButton("OK", this);
+            builder.setNegativeButton("Cancel", this);
+            builder.show();
+        }
     }
 }

@@ -99,4 +99,14 @@ public class Util {
         });
         t.start();
     }
+
+    public static String getDistanceForDisplay(double distance) {
+        int dis = (int) distance;
+        if (dis < 1000) {
+            return dis+" m";
+        }
+        else {
+            return dis/1000+" km";
+        }
+    }
 }

@@ -6,5 +6,5 @@ package com.aiam.clickaride.util;
 
 public class Constants {
     public static final String MyPREFERENCES = "MyPrefs" ;
-    public final static String USERNAME = "XXUSERNAME";
+    public final static String serviceUrl = "http://10.0.2.2:8080";
 }

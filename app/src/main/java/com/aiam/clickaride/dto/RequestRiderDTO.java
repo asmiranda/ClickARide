@@ -11,6 +11,8 @@ public class RequestRiderDTO {
     private String requestLocationDestination;
 
     private String status;
+    private double distance;
+    private double price;
 
     private String acceptedBy;
     private String arrivalTime;
@@ -87,5 +89,21 @@ public class RequestRiderDTO {
 
     public void setArrivalLocationCurrent(String arrivalLocationCurrent) {
         this.arrivalLocationCurrent = arrivalLocationCurrent;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 }

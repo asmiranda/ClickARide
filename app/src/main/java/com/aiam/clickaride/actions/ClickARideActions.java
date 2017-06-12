@@ -18,8 +18,10 @@ import com.aiam.clickaride.dto.Driver;
 import com.aiam.clickaride.dto.LastStatusDTO;
 import com.aiam.clickaride.dto.Passenger;
 import com.aiam.clickaride.dto.RequestRiderDTO;
+import com.aiam.clickaride.util.ClickARideType;
 import com.aiam.clickaride.util.Constants;
 import com.aiam.clickaride.util.DrawDirectionTask;
+import com.aiam.clickaride.util.Util;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -29,6 +31,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
+
+import static com.aiam.clickaride.util.Constants.serviceUrl;
 
 /**
  * Created by aiam on 5/12/2017.
@@ -55,28 +59,42 @@ public class ClickARideActions {
         downloadTask.draw();
     }
 
-    public void alert(String message) {
-
-    }
-
     public void register(final SharedPreferences sharedpreferences, final String email, final String password) {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    Passenger pass = new Passenger();
-                    pass.setUserName(email);
-                    pass.setPassword(password);
+                    if (ClickARideType.isDriver()) {
+                        Passenger pass = new Passenger();
+                        pass.setUserName(email);
+                        pass.setPassword(password);
 
-                    final String url = "http://10.0.2.2:8080/registerPassenger";
-                    RestTemplate restTemplate = new RestTemplate();
-                    restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-                    ResponseEntity message = restTemplate.postForEntity(url, pass, Passenger.class);
-                    Passenger p = (Passenger) message.getBody();
-                    System.out.println(p.getId());
-                    SharedPreferences.Editor editor = sharedpreferences.edit();
-                    editor.putString(Constants.USERNAME, email);
-                    editor.commit();
+                        final String url = Constants.serviceUrl+"/registerDriver";
+                        RestTemplate restTemplate = new RestTemplate();
+                        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                        ResponseEntity message = restTemplate.postForEntity(url, pass, Passenger.class);
+                        Passenger p = (Passenger) message.getBody();
+                        System.out.println(p.getId());
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.putString(ClickARideType.USERNAME, email);
+                        editor.commit();
+                    }
+                    else {
+                        Passenger pass = new Passenger();
+                        pass.setUserName(email);
+                        pass.setPassword(password);
+
+                        final String url = Constants.serviceUrl+"/registerPassenger";
+                        RestTemplate restTemplate = new RestTemplate();
+                        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                        ResponseEntity message = restTemplate.postForEntity(url, pass, Passenger.class);
+                        Passenger p = (Passenger) message.getBody();
+                        System.out.println(p.getId());
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        editor.putString(ClickARideType.USERNAME, email);
+                        editor.commit();
+                    }
+
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -85,7 +103,7 @@ public class ClickARideActions {
         });
     }
 
-    public void requestRide(final String username, final String origin, final String destination, final TextView lblStatus) {
+    public void requestRide(final String username, final String origin, final String destination, final double distance, final double price, final TextView lblStatus) {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
@@ -94,13 +112,16 @@ public class ClickARideActions {
                     request.setRequestor(username);
                     request.setRequestLocationOrigin(origin);
                     request.setRequestLocationDestination(destination);
+                    request.setDistance(distance);
+                    request.setPrice(price);
 
-                    final String url = "http://10.0.2.2:8080/requestRide";
+                    final String url = serviceUrl+"/requestRide";
                     RestTemplate restTemplate = new RestTemplate();
                     restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
                     ResponseEntity message = restTemplate.postForEntity(url, request, RequestRiderDTO.class);
                     RequestRiderDTO p = (RequestRiderDTO) message.getBody();
-                    lblStatus.setText("Ride Requested. Please wait...");
+                    String distanceDisplay = Util.getDistanceForDisplay(distance);
+                    lblStatus.setText("Distance/Amount ["+distanceDisplay+"/"+p.getPrice()+"]");
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -222,6 +243,32 @@ public class ClickARideActions {
                     if (p.getRequestor() != null) {
                         activity.runOnUiThread(new AcceptRunnable(activity, lblStatus, p));
                     }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public void computePrice(final MainActivity activity, final String origin, final String destination, final double distance, final TextView lblStatus) {
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    RequestRiderDTO request = new RequestRiderDTO();
+                    request.setRequestLocationOrigin(origin);
+                    request.setRequestLocationDestination(destination);
+                    request.setDistance(distance);
+
+                    final String url = serviceUrl+"/computePrice";
+                    RestTemplate restTemplate = new RestTemplate();
+                    restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+                    ResponseEntity message = restTemplate.postForEntity(url, request, RequestRiderDTO.class);
+                    RequestRiderDTO p = (RequestRiderDTO) message.getBody();
+                    String distanceDisplay = Util.getDistanceForDisplay(distance);
+                    lblStatus.setText("Distance/Amount ["+distanceDisplay+"/"+p.getPrice()+"]");
+                    activity.price = p.getPrice();
                 }
                 catch (Exception e) {
                     e.printStackTrace();

@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     SharedPreferences sharedpreferences;
     String username;
     String destination;
+    double distance;
+    public double price;
 
     MainActivity context;
     AppLocationService appLocationService;
@@ -65,7 +67,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     .build();
         }
 
-        setContentView(R.layout.activity_main_driver);
+        if (ClickARideType.isDriver()) {
+            setContentView(R.layout.activity_main_driver);
+        }
+        else {
+            setContentView(R.layout.activity_main);
+        }
 
         btnCancel = (Button) findViewById(R.id.btnCancel);
         btnLogin = (Button) findViewById(R.id.btnLogin);
@@ -110,6 +117,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 action.markDestination(mMap, dest);
                 action.drawRoute(from, dest, mMap);
+
+                float[] results = new float[1];
+                Location.distanceBetween(from.latitude, from.longitude, dest.latitude, dest.longitude, results);
+                distance = results[0];
+                action.computePrice(context, origin, destination, distance, lblStatus);
                 Log.i(TAG, "Place: " + place.getName());
             }
 
@@ -121,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         sharedpreferences = getSharedPreferences(Constants.MyPREFERENCES, Context.MODE_PRIVATE);
-        username = sharedpreferences.getString(Constants.USERNAME, null);
+        username = sharedpreferences.getString(ClickARideType.USERNAME, null);
         if (username != null && !username.isEmpty()) {
             btnLogin.setVisibility(View.GONE);
         }
@@ -172,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onClick(View v) {
         if (v == btnRide) {
             System.out.println("BTN RIDE");
-            action.requestRide(username, origin, destination, lblStatus);
+            action.requestRide(username, origin, destination, distance, price, lblStatus);
         }
         else if (v == btnLogin){
             System.out.println("BTN LOGIN");

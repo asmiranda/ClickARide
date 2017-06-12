@@ -33,7 +33,7 @@ android {
         driver {
             applicationId "com.aiam.clickaride.driver"
         }
-        passenge {
+        passenger {
             applicationId "com.aiam.clickaride.passenger"
         }
     }
